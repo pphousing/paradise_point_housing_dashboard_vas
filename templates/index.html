@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .metrics-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            max-width: 960px; /* 4 boxes × ~240px + gaps */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .metric-box {
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 20px 30px;
+            width: 220px;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .metric-title {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .metric-value {
+            font-size: 28px;
+            color: #1a3e7a;  /* darker blue */
+            font-weight: bold;
+        }
+
+        .header {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .logo {
+            height: 200px; /* or smaller if needed */
+            margin-right: 15px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #1a3e7a;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .plot-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .plot-box {
+            flex: 1;
+            min-width: 300px;
+            max-width: 33%;
+            box-sizing: border-box;
+        }
+        .plot-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{ url_for('static', filename='pp_logo.png') }}" alt="Paradise Point Logo" class="logo">
+        <h1>Paradise Point Housing Reporting & Analytics</h1>
+    </div>
+
+
+   
+<h2 style="text-align:left;">Leases Expiring in the Next 2 Weeks</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            {% for col in expiring_soon[0].keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in expiring_soon %}
+            <tr>
+                {% for val in row.values() %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2 style="text-align:left; margin-top: 40px;">Expired Leases Missing Refundable Security Deposit</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            {% for col in pending_rsd[0].keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in pending_rsd %}
+            <tr>
+                {% for val in row.values() %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+</body>
+</html>
