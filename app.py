@@ -72,7 +72,7 @@ def dashboard():
     next_month = pd.to_datetime((today + relativedelta(months=1)).strftime("%Y-%m"))
 
 
-    expiring_soon_df = df[df['Days From Lease End Date'].between(1,14) & (df['Insurance RSD']!='')].sort_values(by='Days From Lease End Date')[['Booking ID','Move In Date','Move Out Date','Length of Stay',
+    expiring_soon_df = df[df['Days From Lease End Date'].between(1,14) & (df['Insurance RSD']!='')].sort_values(by='Days From Lease End Date')[['Booking ID',,'PPH Relocation Specialist','Move In Date','Move Out Date','Length of Stay',
     'Landlord','Landlord Phone Number', 'Landlord Email Address','Tenant Name','Tenant Phone Number','Tenant Email Address',
     'Address','Notes','Days From Lease End Date','Insurance RSD','Landlord RSD']].drop_duplicates()
 
@@ -84,16 +84,7 @@ def dashboard():
     today = datetime.today()
     dates =[pd.to_datetime(today.strftime("%Y-%m")), next_month]
 
-    if 1 <= today.day <= 21:
-        payment_tracker_df = df[(df['Truncated Date']==pd.to_datetime(today.strftime("%Y-%m"))) & ((df['Paid to Landlord?'].isin(['','No']))
-        |(df['Paid by Insurance?'].isin(['','No'])))][['Truncated Date','Move In Date','Move Out Date','Relocation Company','Landlord','Chase Vendor Name',
-            'Tenant Name','Address','Notes', 'Rent Amount','Insurance Amount','Total Revenue', 'Paid to Landlord?','Paid by Insurance?']].reset_index().drop('index',axis=1).reset_index()
-    if today.day > 21:
-        payment_tracker_df = df[(df['Truncated Date'].isin(dates)) & ((df['Paid to Landlord?'].isin(['','No']))
-        |(df['Paid by Insurance?'].isin(['','No'])))][['Truncated Date','Move In Date','Move Out Date','Relocation Company','Landlord','Chase Vendor Name',
-            'Tenant Name','Address', 'Notes','Rent Amount','Insurance Amount','Total Revenue', 'Paid to Landlord?','Paid by Insurance?']].reset_index().drop('index',axis=1).reset_index()
-
-
+ 
     return render_template('index.html',
                            expiring_soon=expiring_soon_df.to_dict(orient='records') if not expiring_soon_df.empty else [],
                            pending_rsd=pending_rsd_df.to_dict(orient='records'),
