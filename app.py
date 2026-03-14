@@ -74,12 +74,12 @@ def dashboard():
 
     expiring_soon_df = df[df['Days From Lease End Date'].between(1,14) & (df['Insurance RSD']!='')].sort_values(by='Days From Lease End Date')[['Booking ID','PPH Relocation Specialist','Move In Date','Move Out Date','Length of Stay',
     'Landlord','Landlord Phone Number', 'Landlord Email Address','Tenant Name','Tenant Phone Number','Tenant Email Address',
-    'Address','Notes','Days From Lease End Date','Insurance RSD','Landlord RSD']].drop_duplicates()
+    'Address','Notes','Days From Lease End Date','Insurance RSD','Landlord RSD','Slack Link']].drop_duplicates()
 
     pending_rsd_df = df[(df['Days From Lease End Date'] <= 0) & 
                     (df['LL Returned Security Deposit?'] == 'No')].sort_values(by='Days From Lease End Date')[['Booking ID','PPH Relocation Specialist','Move In Date','Move Out Date','Length of Stay',
     'Landlord','Landlord Phone Number', 'Landlord Email Address','Tenant Name','Tenant Phone Number','Tenant Email Address',
-    'Address','Notes','Days From Lease End Date','Insurance RSD','Landlord RSD']]
+    'Address','Notes','Days From Lease End Date','Insurance RSD','Landlord RSD','Slack Link']]
 
     today = datetime.today()
     dates =[pd.to_datetime(today.strftime("%Y-%m")), next_month]
