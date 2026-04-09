@@ -61,13 +61,21 @@ def get_data():
     ra = ra[ra['Date of Lead']>='2025-03-21']
     ra['Date of Lead'] = pd.to_datetime(ra['Date of Lead'])
     ra['date_month'] = pd.to_datetime(ra['Date of Lead'].apply(lambda x: x.strftime("%Y-%m")))
-    return df, ra
+    
+    data = sheet.worksheet("Extension Request Tracker").get_all_records()
+    ext = pd.DataFrame(data)
+    ext = ext[ext.Finalized == 'Not Done']
+    
+    data = sheet.worksheet("Problems Tracker").get_all_records()
+    prob = pd.DataFrame(data)
+    prob = prob[prob.Resolved == 'No']
+    return df, ra, ext, prob
 
 
 @app.route('/')
 def dashboard():
     # Assume df and ra are already loaded DataFrames
-    df,ra = get_data()
+    df,ra,ext, prob = get_data()
     today = datetime.today()
     next_month = pd.to_datetime((today + relativedelta(months=1)).strftime("%Y-%m"))
 
@@ -88,6 +96,8 @@ def dashboard():
     return render_template('index.html',
                            expiring_soon=expiring_soon_df.to_dict(orient='records') if not expiring_soon_df.empty else [],
                            pending_rsd=pending_rsd_df.to_dict(orient='records'),
+                           ext_tracker = ext.to_dict(orient='records'),
+                           prob_tracker = prob.to_dict(orient='records')
                           )
 
 if __name__ == '__main__':
