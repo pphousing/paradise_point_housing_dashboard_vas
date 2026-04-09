@@ -153,6 +153,46 @@
     </tbody>
 </table>
 
+<h2 style="text-align:left; margin-top: 40px;">Extension Request Tracker</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            {% for col in ext_tracker[0].keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in ext_tracker %}
+            <tr>
+                {% for val in row.values() %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2 style="text-align:left; margin-top: 40px;">Problems Tracker</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            {% for col in prob_tracker[0].keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in prob_tracker %}
+            <tr>
+                {% for val in row.values() %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 
 </body>
 </html>
