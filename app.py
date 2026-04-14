@@ -69,13 +69,16 @@ def get_data():
     data = sheet.worksheet("Problems Tracker").get_all_records()
     prob = pd.DataFrame(data)
     prob = prob[prob.Resolved == 'No']
-    return df, ra, ext, prob
+
+    data = sheet.worksheet("Closed Leads Copy").get_all_records()
+    slack_links = pd.DataFrame(data)
+    return df, ra, ext, prob, slack_links
 
 
 @app.route('/')
 def dashboard():
     # Assume df and ra are already loaded DataFrames
-    df,ra,ext, prob = get_data()
+    df,ra,ext, prob, slack_links = get_data()
     today = datetime.today()
     next_month = pd.to_datetime((today + relativedelta(months=1)).strftime("%Y-%m"))
 
@@ -91,6 +94,9 @@ def dashboard():
 
     today = datetime.today()
     dates =[pd.to_datetime(today.strftime("%Y-%m")), next_month]
+
+    expiring_soon_df = expiring_soon_df.merge(slack_links[['Slack Link (Eissa)']], left_index=True, right_index=True)
+    pending_rsd_df = pending_rsd_df.merge(slack_links[['Slack Link (Eissa)']], left_index=True, right_index=True)
 
  
     return render_template('index.html',
