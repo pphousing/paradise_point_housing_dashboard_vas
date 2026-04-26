@@ -42,6 +42,7 @@ def get_data():
     sheet = client.open('General')
     data = sheet.worksheet("ReverseArbitrage").get_all_records()
     df = pd.DataFrame(data)
+    df["_sheet_row"] = df.index + 2
     df['Move In Date'] =pd.to_datetime(df['Move In Date'], format="%m/%d/%Y",errors='coerce')
     df['date_month'] = pd.to_datetime(df['Move In Date'].apply(lambda x: x.strftime("%Y-%m")), format="%Y-%m",errors='coerce')
     df['length_of_stay_num'] = df['Length of Stay'].apply(lambda x: x.split(' ')[0]).astype(float)
@@ -70,33 +71,29 @@ def get_data():
     prob = pd.DataFrame(data)
     prob = prob[prob.Resolved == 'No']
 
-    data = sheet.worksheet("Closed Leads Copy").get_all_records()
-    slack_links = pd.DataFrame(data)
-    return df, ra, ext, prob, slack_links
+    return df, ra, ext, prob
 
 
 @app.route('/')
 def dashboard():
     # Assume df and ra are already loaded DataFrames
-    df,ra,ext, prob, slack_links = get_data()
+    df,ra,ext, prob= get_data()
     today = datetime.today()
     next_month = pd.to_datetime((today + relativedelta(months=1)).strftime("%Y-%m"))
 
 
-    expiring_soon_df = df[df['Days From Lease End Date'].between(1,14) & (df['Insurance RSD']!='')].sort_values(by='Days From Lease End Date')[['Booking ID','PPH Relocation Specialist','Move In Date','Move Out Date','Length of Stay',
+    expiring_soon_df = df[df['Days From Lease End Date'].between(1,14) & (df['Insurance RSD']!='')].sort_values(by='Days From Lease End Date')[[ '_sheet_row','Booking ID','PPH Relocation Specialist','Move In Date','Move Out Date','Length of Stay',
     'Landlord','Landlord Phone Number', 'Landlord Email Address','Tenant Name','Tenant Phone Number','Tenant Email Address',
     'Address','Notes','Days From Lease End Date','Insurance RSD','Landlord RSD','Slack Link']].drop_duplicates()
 
     pending_rsd_df = df[(df['Days From Lease End Date'] <= 0) & 
-                    (df['LL Returned Security Deposit?'] == 'No')].sort_values(by='Days From Lease End Date')[['Booking ID','PPH Relocation Specialist','Move In Date','Move Out Date','Length of Stay',
+                    (df['LL Returned Security Deposit?'] == 'No')].sort_values(by='Days From Lease End Date')[[ '_sheet_row','Booking ID','PPH Relocation Specialist','Move In Date','Move Out Date','Length of Stay',
     'Landlord','Landlord Phone Number', 'Landlord Email Address','Tenant Name','Tenant Phone Number','Tenant Email Address',
     'Address','Notes','Days From Lease End Date','Insurance RSD','Landlord RSD','Slack Link']]
 
     today = datetime.today()
     dates =[pd.to_datetime(today.strftime("%Y-%m")), next_month]
 
-    expiring_soon_df = expiring_soon_df.merge(slack_links[['Slack Link (Eissa)']], left_index=True, right_index=True)
-    pending_rsd_df = pending_rsd_df.merge(slack_links[['Slack Link (Eissa)']], left_index=True, right_index=True)
 
  
     return render_template('index.html',
@@ -105,6 +102,26 @@ def dashboard():
                            ext_tracker = ext.to_dict(orient='records'),
                            prob_tracker = prob.to_dict(orient='records')
                           )
+
+@app.route('/update_slack_links', methods=['POST'])
+def update_slack_links():
+    creds = authenticate_google()
+    client = gspread.authorize(creds)
+
+    sheet = client.open('General')
+    worksheet = sheet.worksheet("ReverseArbitrage")
+
+    rows = request.form.getlist("sheet_row")
+    links = request.form.getlist("slack_link")
+
+    SLACK_LINK_COL = "AM"  # change this if Slack Link is not column Q
+
+    for row_num, slack_link in zip(rows, links):
+        if row_num and slack_link is not None:
+            cell = f"{SLACK_LINK_COL}{row_num}"
+            worksheet.update_acell(cell, slack_link)
+
+    return dashboard()
 
 if __name__ == '__main__':
     # app.run(debug=True)
