@@ -113,45 +113,85 @@
 
 
    
-<h2 style="text-align:left;">Leases Expiring in the Next 2 Weeks</h2>
-<table class="data-table">
-    <thead>
-        <tr>
-            {% for col in expiring_soon[0].keys() %}
-                <th>{{ col }}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in expiring_soon %}
-            <tr>
-                {% for val in row.values() %}
-                    <td>{{ val }}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<form method="POST" action="/update_slack_links">
+    <h2 style="text-align:left;">Leases Expiring in the Next 2 Weeks</h2>
 
-<h2 style="text-align:left; margin-top: 40px;">Expired Leases Missing Refundable Security Deposit</h2>
-<table class="data-table">
-    <thead>
-        <tr>
-            {% for col in pending_rsd[0].keys() %}
-                <th>{{ col }}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in pending_rsd %}
+    {% if expiring_soon %}
+    <table class="data-table">
+        <thead>
             <tr>
-                {% for val in row.values() %}
-                    <td>{{ val }}</td>
+                {% for col in expiring_soon[0].keys() %}
+                    {% if col != "_sheet_row" %}
+                        <th>{{ col }}</th>
+                    {% endif %}
                 {% endfor %}
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for row in expiring_soon %}
+                <tr>
+                    {% for key, val in row.items() %}
+                        {% if key != "_sheet_row" %}
+                            {% if key == "Slack Link" %}
+                                <td>
+                                    <input type="hidden" name="sheet_row" value="{{ row['_sheet_row'] }}">
+                                    <input type="text" name="slack_link" value="{{ val }}" style="width: 250px;">
+                                </td>
+                            {% else %}
+                                <td>{{ val }}</td>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit" style="margin-top: 15px;">Submit Slack Links</button>
+    {% else %}
+        <p>No leases expiring soon.</p>
+    {% endif %}
+</form>
+
+<form method="POST" action="/update_slack_links">
+    <h2 style="text-align:left; margin-top: 40px;">Expired Leases Missing Refundable Security Deposit</h2>
+
+    {% if pending_rsd %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                {% for col in pending_rsd[0].keys() %}
+                    {% if col != "_sheet_row" %}
+                        <th>{{ col }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in pending_rsd %}
+                <tr>
+                    {% for key, val in row.items() %}
+                        {% if key != "_sheet_row" %}
+                            {% if key == "Slack Link" %}
+                                <td>
+                                    <input type="hidden" name="sheet_row" value="{{ row['_sheet_row'] }}">
+                                    <input type="text" name="slack_link" value="{{ val }}" style="width: 250px;">
+                                </td>
+                            {% else %}
+                                <td>{{ val }}</td>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit" style="margin-top: 15px;">Submit Slack Links</button>
+    {% else %}
+        <p>No pending RSD items.</p>
+    {% endif %}
+</form>
 
 <h2 style="text-align:left; margin-top: 40px;">Extension Request Tracker</h2>
 <table class="data-table">
